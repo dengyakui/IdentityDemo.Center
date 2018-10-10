@@ -1,0 +1,18 @@
+﻿@model IdentityDemo.Center.Controllers.ScopeViewModel
+
+<li>
+    <input type="checkbox" checked="@Model.Checked" disabled="@Model.Required" name="ScopesConsented" value="@Model.Name" />
+    @if (Model.Emphasize)
+    {
+        <span style="color:red;">@Model.Name</span>
+    }
+    else
+    {
+        @Model.Name
+    }
+    @if (Model.Required)
+    {
+        <input type="hidden" name="ScopesConsented" value="@Model.Name" />
+    }
+
+</li>

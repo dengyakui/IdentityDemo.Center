@@ -1,0 +1,56 @@
+﻿
+@{
+    ViewData["Title"] = "Index";
+}
+@model IdentityDemo.Center.Controllers.ConsentViewModel
+<h2>Consent page</h2>
+<div class="row page-header">
+    <div class="col-sm-8">
+        @if (!string.IsNullOrEmpty(Model.ClientLogoUrl))
+        {
+            <div>
+                <img src="@Model.ClientLogoUrl"/>
+            </div>
+        }
+        <h1>@Model.ClientName</h1>
+        <small>希望使用你的账户</small>
+    </div>
+</div>
+<div class="row">
+    
+    <div class="col-sm-8">
+        
+        <form method="post" asp-action="Index">
+            
+            <input type="hidden" name="returnUrl" value="@Model.ReturnUrl" />
+            @if (Model.IdentityScopes.Any())
+            {
+                <ul class="list-group">
+                    @foreach (var item in Model.IdentityScopes)
+                    {
+                        <partial name="_ScopeListItem" model="item"/>
+                    }
+                </ul>
+            }
+            @if (Model.ResourceScopes.Any())
+            {
+                <ul class="list-group">
+                    @foreach (var item in Model.IdentityScopes)
+                    {
+                        <partial name="_ScopeListItem" model="item"/>
+                    }
+                </ul>
+            }
+            <div>
+                <label>
+                    <input type="checkbox" asp-for="RememberConsent"/>
+                    <strong>记住我的选择</strong>
+                </label>
+            </div>
+            <div>
+                <button name="button" autofocus value="yes" class="btn btn-primary">同意</button>
+                <button name="button" value="no">取消</button>
+            </div>
+        </form>
+    </div>
+</div>
