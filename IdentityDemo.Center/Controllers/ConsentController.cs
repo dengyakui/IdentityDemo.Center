@@ -3,10 +3,11 @@ using IdentityServer4.Stores;
 using IdentityServer4.Test;
 using Microsoft.AspNetCore.Mvc;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using IdentityServer4.Models;
+using IdentityDemo.Center.Models;
+using IdentityDemo.Center.Services;
 
 namespace IdentityDemo.Center.Controllers
 {
@@ -15,68 +16,22 @@ namespace IdentityDemo.Center.Controllers
         private readonly IResourceStore _resourceStore;
         private readonly IClientStore _clientStore;
         private readonly IIdentityServerInteractionService _identityServerInteractionService;
-         private async Task<ConsentViewModel> BuildConsentViewModelAsync(string returnUrl)
-        {
-            var resquest = await _identityServerInteractionService.GetAuthorizationContextAsync(returnUrl);
-            if (resquest == null) return null;
-            var client = await _clientStore.FindEnabledClientByIdAsync(resquest.ClientId);
-            var resources = await _resourceStore.FindEnabledResourcesByScopeAsync(resquest.ScopesRequested);
+        private readonly ConsentService _consentService;
 
-            var vm = CreateConsentViewModel(resquest, client, resources);
-            vm.ReturnUrl = returnUrl;
-            return vm;
-        }
-
-        private ConsentViewModel CreateConsentViewModel(AuthorizationRequest request, Client client, Resources resources)
-        {
-            var vm = new ConsentViewModel();
-            vm.ClientId = client.ClientId;
-            vm.ClientName = client.ClientName;
-            vm.ClientLogoUrl = client.LogoUri;
-            vm.ClientUrl = client.ClientUri;
-
-            vm.IdentityScopes = resources.IdentityResources.Select(i => CreateScopeViewModel(i));
-            vm.ResourceScopes = resources.ApiResources.SelectMany(i => i.Scopes).Select(i => CreateScopeViewModel(i));
-            return vm;
-        }
-
-        private ScopeViewModel CreateScopeViewModel(IdentityResource identityResource)
-        {
-            return new ScopeViewModel
-            {
-                Name = identityResource.Name,
-                Checked = identityResource.Required,
-                Required = identityResource.Required,
-                Description = identityResource.Description,
-                Emphasize = identityResource.Emphasize,
-                DisplayName = identityResource.DisplayName
-            };
-        }
-
-        private ScopeViewModel CreateScopeViewModel(Scope scope)
-        {
-            return new ScopeViewModel
-            {
-                Name = scope.Name,
-                Checked = scope.Required,
-                Required = scope.Required,
-                Description = scope.Description,
-                Emphasize = scope.Emphasize,
-                DisplayName = scope.DisplayName
-            };
-        }
-        public ConsentController(IResourceStore resourceStore, IClientStore clientStore, IIdentityServerInteractionService identityServerInteractionService)
+        public ConsentController(IResourceStore resourceStore, IClientStore clientStore, IIdentityServerInteractionService identityServerInteractionService,
+           ConsentService consentService)
         {
             _resourceStore = resourceStore;
             _clientStore = clientStore;
             _identityServerInteractionService = identityServerInteractionService;
+            this._consentService = consentService;
         }
         public async Task<IActionResult> Index(string returnUrl)
         {
             var context = await _identityServerInteractionService.GetAuthorizationContextAsync(returnUrl);
             var client = await _clientStore.FindEnabledClientByIdAsync(context.ClientId);
             var resources = await _resourceStore.FindEnabledResourcesByScopeAsync(client.AllowedScopes);
-            var model = CreateConsentViewModel(context, client, resources);
+            var model =_consentService.CreateConsentViewModel(context, client, resources);
             model.ReturnUrl = returnUrl;
             return View(model);
         }
@@ -111,33 +66,5 @@ namespace IdentityDemo.Center.Controllers
             throw new Exception("error");
 
         }
-    }
-
-    public class ConsentViewModel : InputConsentViewModel
-    {
-        public string ClientId { get; set; }
-        public string ClientName { get; set; }
-        public string ClientLogoUrl { get; set; }
-        public string ClientUrl { get; set; }
-
-    }
-
-    public class InputConsentViewModel
-    {
-        public IEnumerable<string> ScopesConsented { get; set; }
-        public bool RememberConsent { get; set; }
-        public string Button { get; set; }
-        public string ReturnUrl { get; set; }
-        public IEnumerable<ScopeViewModel> IdentityScopes { get; set; }
-        public IEnumerable<ScopeViewModel> ResourceScopes { get; set; }
-    }
-    public class ScopeViewModel
-    {
-        public string Name { get; set; }
-        public string DisplayName { get; set; }
-        public string Description { get; set; }
-        public bool Emphasize { get; set; }
-        public bool Required { get; set; }
-        public bool Checked { get; set; }
     }
 }

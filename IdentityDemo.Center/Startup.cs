@@ -1,4 +1,5 @@
 ﻿using IdentityDemo.Center.Data;
+using IdentityDemo.Center.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -54,6 +55,7 @@ namespace IdentityDemo.Center
                 .AddInMemoryClients(Config.GetTestClients())
                 .AddTestUsers(Config.GetTesrUsers())
                 .AddInMemoryIdentityResources(Config.GetIdentityResources());
+            services.AddScoped<ConsentService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
