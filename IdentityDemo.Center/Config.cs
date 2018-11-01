@@ -27,7 +27,7 @@ namespace IdentityDemo.Center
             };
         }
 
-        public static List<TestUser> GetTesrUsers()
+        public static List<TestUser> GetTestUsers()
         {
             return new List<TestUser>()
             {

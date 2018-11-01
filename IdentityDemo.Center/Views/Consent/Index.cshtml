@@ -21,7 +21,7 @@
     <div class="col-sm-8">
         
         <form method="post" asp-action="Index">
-            
+            <div asp-validation-summary="All" class="danger"></div>
             <input type="hidden" name="returnUrl" value="@Model.ReturnUrl" />
             @if (Model.IdentityScopes.Any())
             {
